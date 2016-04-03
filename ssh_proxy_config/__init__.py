@@ -35,7 +35,6 @@ from . import providers
 
 __version__ = '0.1.0'
 
-
 Host = collections.namedtuple('Host', ['hostname', 'public_ip', 'private_ip'])
 
 
@@ -45,15 +44,22 @@ def render(**kwargs):
     return tmpl.render(**kwargs)
 
 
-def is_bastion_host(hostname, bastion=None):
-    return hostname == bastion or 'proxy' in hostname
+def is_bastion_host(hostname, bastion, config, bastion_host_keyword='proxy'):
+    # If the user specified a bastion host, always use it.
+    if hostname == bastion:
+        return True
+    # Determine the bastion host based on the keyword if the user did not
+    # explicitly choose a host.
+    if not config['bastion']:
+        return bastion_host_keyword in hostname
+    return False
 
 
 def build_ssh_config(hosts, user, bastion):
     config = collections.defaultdict(list)
     config['user'] = user
     for host in hosts:
-        if is_bastion_host(host.hostname, bastion) and not config['bastion']:
+        if is_bastion_host(host.hostname, bastion, config):
             config['bastion'] = host
             continue
         config['hosts'].append(host)
