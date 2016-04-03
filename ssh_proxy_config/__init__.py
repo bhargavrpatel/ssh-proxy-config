@@ -82,6 +82,7 @@ def parse_args(argv):
     )
     parser.add_argument(
         'provider',
+        nargs='?',
         default='vmfarms',
         choices=[p.name for p in providers.list_providers()],
     )
