@@ -15,7 +15,7 @@ from ssh_proxy_config.providers.base import (
 )
 
 
-class VMFarmsAPIClient():
+class VMFarmsAPIClient(object):
 
     BASE_URL = 'https://my.vmfarms.com/api/v1/'
 
