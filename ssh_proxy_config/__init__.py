@@ -71,12 +71,6 @@ def parse_args(argv):
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        '-p', '--provider',
-        choices=providers.list_providers(),
-        help='cloud provider (default: %(default)s)',
-        default='vmfarms',
-    )
-    parser.add_argument(
         '-b', '--bastion',
         metavar='BASTION HOST',
         help='bastion host (default: first hostname matching "proxy")',
@@ -85,6 +79,11 @@ def parse_args(argv):
         '-u', '--user',
         default='deploy',
         help='SSH user (default: %(default)s)',
+    )
+    parser.add_argument(
+        'provider',
+        default='vmfarms',
+        choices=[p.name for p in providers.list_providers()],
     )
     return parser.parse_args()
 

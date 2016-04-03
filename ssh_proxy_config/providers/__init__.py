@@ -31,7 +31,7 @@ def list_providers():
     mgr = extension.ExtensionManager(
         namespace=NAMESPACE,
     )
-    return sorted([e.name for e in mgr.extensions])
+    return sorted(mgr.extensions, key=lambda x: x.name)
 
 
 def fetch(provider, *args, **kwargs):
