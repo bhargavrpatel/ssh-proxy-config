@@ -10,10 +10,20 @@ from stevedore import (
 )
 
 
+NAMESPACE = 'ssh_proxy_config.providers'
+
+
+def list_providers():
+    mgr = extension.ExtensionManager(
+        namespace=NAMESPACE,
+    )
+    return sorted([e.name for e in mgr.extensions])
+
+
 def fetch(provider, *args, **kwargs):
     try:
         mgr = driver.DriverManager(
-            namespace='ssh_proxy_config.providers',
+            namespace=NAMESPACE,
             name=provider,
             invoke_on_load=True,
             invoke_args=args,
@@ -22,10 +32,6 @@ def fetch(provider, *args, **kwargs):
         return mgr.driver.hosts()
     except RuntimeError:
         print("Cannot find provider plugin named '{}'. Available plugins:".format(provider, file=sys.stderr))
-        mgr = extension.ExtensionManager(
-            namespace='ssh_proxy_config.providers',
-        )
-        extensions = sorted([e.name for e in mgr.extensions])
-        for e in extensions:
+        for e in list_providers():
             print('  {}'.format(e), file=sys.stderr)
         sys.exit(1)

@@ -30,7 +30,6 @@ import sys
 
 import jinja2
 
-
 from . import providers
 
 __version__ = '0.1.0'
@@ -73,7 +72,7 @@ def parse_args(argv):
     )
     parser.add_argument(
         '-p', '--provider',
-        choices=['ec2', 'vmfarms'],
+        choices=providers.list_providers(),
         help='cloud provider (default: %(default)s)',
         default='vmfarms',
     )
