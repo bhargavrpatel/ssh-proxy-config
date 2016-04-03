@@ -15,16 +15,11 @@
 # limitations under the License.
 
 """
-Generate SSH configuration for accessing EC2 hosts inside a VPC.
+Generate SSH configuration for accessing hosts inside a VPC.
 
 The generated configuration uses ProxyCommand to establish all connections
 through a bastion host. By default, the bastion host is the first host whose
 hostname contains 'proxy'.
-
-This script uses boto3, and requires either:
-
-  1. AWS credentials defined in ~/.aws/credentials
-  2. AWS_SECRET_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables
 """
 
 from __future__ import print_function
@@ -34,8 +29,9 @@ import collections
 import sys
 
 import jinja2
-import boto3
 
+
+from . import providers
 
 __version__ = '0.1.0'
 
@@ -49,21 +45,14 @@ def render(**kwargs):
     return tmpl.render(**kwargs)
 
 
-def ec2_instances():
-    ec2 = boto3.resource('ec2')
-    for c in ec2.instances.all():
-        hostname = [tag['Value'] for tag in c.tags if tag['Key'] == 'Name'][0]
-        yield Host(hostname, c.public_ip_address, c.private_ip_address)
-
-
 def is_bastion_host(hostname, bastion=None):
     return hostname == bastion or 'proxy' in hostname
 
 
-def build_ssh_config(user, bastion):
+def build_ssh_config(hosts, user, bastion):
     config = collections.defaultdict(list)
     config['user'] = user
-    for host in ec2_instances():
+    for host in hosts:
         if is_bastion_host(host.hostname, bastion) and not config['bastion']:
             config['bastion'] = host
             continue
@@ -77,6 +66,12 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        '-p', '--provider',
+        choices=['ec2', 'vmfarms'],
+        help='cloud provider (default: %(default)s)',
+        default='vmfarms',
     )
     parser.add_argument(
         '-b', '--bastion',
@@ -95,7 +90,8 @@ def main(argv=None):
     if not argv:
         argv = sys.argv[1:]
     args = parse_args(argv)
-    config = build_ssh_config(args.user, args.bastion)
+    hosts = providers.fetch(args.provider)
+    config = build_ssh_config(hosts, args.user, args.bastion)
     print(render(**config))
 
 

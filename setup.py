@@ -20,11 +20,17 @@ setuptools.setup(
     install_requires=[
         'boto3',
         'jinja2 >= 2.7',
+        'requests',
+        'stevedore',
     ],
 
     entry_points={
         'console_scripts': [
             'ssh-proxy-config = ssh_proxy_config:main',
+        ],
+        'ssh_proxy_config.providers': [
+            'ec2 = ssh_proxy_config.providers.ec2:ec2_instances',
+            'vmfarms = ssh_proxy_config.providers.vmfarms:vmfarms_instances',
         ],
     },
 
