@@ -35,8 +35,6 @@ from . import providers
 
 __version__ = '0.1.0'
 
-Host = collections.namedtuple('Host', ['hostname', 'public_ip', 'private_ip'])
-
 
 def render(**kwargs):
     env = jinja2.Environment(loader=jinja2.PackageLoader('ssh_proxy_config', 'templates'))

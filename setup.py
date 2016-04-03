@@ -21,6 +21,7 @@ setuptools.setup(
         'boto3',
         'jinja2 >= 2.7',
         'requests',
+        'six',
         'stevedore',
     ],
 
@@ -29,8 +30,8 @@ setuptools.setup(
             'ssh-proxy-config = ssh_proxy_config:main',
         ],
         'ssh_proxy_config.providers': [
-            'ec2 = ssh_proxy_config.providers.ec2:ec2_instances',
-            'vmfarms = ssh_proxy_config.providers.vmfarms:vmfarms_instances',
+            'ec2 = ssh_proxy_config.providers.ec2:EC2Provider',
+            'vmfarms = ssh_proxy_config.providers.vmfarms:VMFarmsProvider',
         ],
     },
 

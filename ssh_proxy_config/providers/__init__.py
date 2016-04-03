@@ -19,7 +19,7 @@ def fetch(provider, *args, **kwargs):
             invoke_args=args,
             invoke_kwds=kwargs,
         )
-        return mgr.driver
+        return mgr.driver.hosts()
     except RuntimeError:
         print("Cannot find provider plugin named '{}'. Available plugins:".format(provider, file=sys.stderr))
         mgr = extension.ExtensionManager(

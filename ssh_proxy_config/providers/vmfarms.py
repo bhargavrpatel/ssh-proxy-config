@@ -6,14 +6,13 @@ ssh-proxy-config VM Farms provider
 
 import os
 
-try:
-    from urllib.parse import urljoin
-except ImportError:
-    from urlparse import urljoin
-
+from six.moves.urllib.parse import urljoin
 import requests
 
-from ssh_proxy_config import Host
+from ssh_proxy_config.providers.base import (
+    BaseProvider,
+    Host,
+)
 
 
 class VMFarmsAPIClient():
@@ -52,13 +51,14 @@ class VMFarmsAPIClient():
         return req.json()
 
 
-def vmfarms_instances():
-    client = VMFarmsAPIClient(os.getenv('VMFARMS_API_TOKEN'))
-    servers = client.get('servers')
-    for server in servers:
-        host = Host(
-            server['name'],
-            server['public_interfaces'][0],
-            server['private_interfaces'][0],
-        )
-        yield host
+class VMFarmsProvider(BaseProvider):
+    def hosts(self):
+        client = VMFarmsAPIClient(os.getenv('VMFARMS_API_TOKEN'))
+        servers = client.get('servers')
+        for server in servers:
+            host = Host(
+                server['name'],
+                server['public_interfaces'][0],
+                server['private_interfaces'][0],
+            )
+            yield host
