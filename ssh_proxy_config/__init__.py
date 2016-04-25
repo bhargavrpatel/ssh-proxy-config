@@ -26,6 +26,7 @@ from __future__ import print_function
 
 import argparse
 import collections
+import os
 import sys
 
 import jinja2
@@ -36,8 +37,21 @@ __version__ = '0.1.0'
 
 
 def render(**kwargs):
-    env = jinja2.Environment(loader=jinja2.PackageLoader('ssh_proxy_config', 'templates'))
-    tmpl = env.get_template('ssh_config.j2')
+    default_template = """
+    User {{ user }}
+
+    Host {{ bastion.hostname }}
+      HostName {{ bastion.public_ip }}
+    {% for host in hosts %}
+    Host {{ host.hostname }}
+      Hostname {{ host.private_ip }}
+      ProxyCommand ssh -q -A -x {{ bastion.hostname }} -W %h:22
+    {% endfor %}
+    """
+    template_string = kwargs.get('template_string', default_template)
+    env = jinja2.Environment(
+        loader=jinja2.PackageLoader('ssh_proxy_config'))
+    tmpl = env.from_string(template_string)
     return tmpl.render(**kwargs)
 
 
@@ -86,6 +100,10 @@ def parse_args(argv):
         default='vmfarms',
         choices=[p.name for p in providers.list_providers()],
     )
+    parser.add_argument(
+        '-t', '--template',
+        help='Path of j2 template which will render the info',
+    )
     return parser.parse_args()
 
 
@@ -95,6 +113,10 @@ def main(argv=None):
     args = parse_args(argv)
     hosts = providers.fetch(args.provider)
     config = build_ssh_config(hosts, args.user, args.bastion)
+    if args.template is not None:
+        templ_path = os.path.expanduser(args.template)
+        if os.path.exists(templ_path):
+            config['template_string'] = ''.join(open(templ_path))
     print(render(**config))
 
 
