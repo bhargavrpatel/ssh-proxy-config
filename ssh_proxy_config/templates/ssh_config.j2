@@ -1,9 +1,0 @@
-User {{ user }}
-
-Host {{ bastion.hostname }}
-  HostName {{ bastion.public_ip }}
-{% for host in hosts %}
-Host {{ host.hostname }}
-  Hostname {{ host.private_ip }}
-  ProxyCommand ssh -q -A -x {{ bastion.hostname }} -W %h:22
-{% endfor %}

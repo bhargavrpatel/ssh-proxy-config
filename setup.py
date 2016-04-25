@@ -13,10 +13,6 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    package_data={
-        'ssh_proxy_config': ['templates/*'],
-    },
-
     install_requires=[
         'boto3',
         'jinja2 >= 2.7',
